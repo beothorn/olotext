@@ -1,5 +1,12 @@
 import OpenAI from 'openai';
 
+/**
+ * Minimal game engine used by the demo server.
+ * Scenes are defined here and `applyAgents` advances the story state.
+ * When an OpenAI API key is provided the narrator will use the API to
+ * generate short pieces of narration.
+ */
+
 export interface Scene {
   text: string;
   options: Record<string, string>; // option text -> next scene id
@@ -51,7 +58,25 @@ const openai = openaiKey ? new OpenAI({ apiKey: openaiKey }) : null;
 
 const NARRATOR_PROMPT = `You are the Narrator of a text adventure game. Use the provided scene description and options to craft the next narration. Keep the story consistent and concise. Always respond in JSON with keys \\"narration\\" and \\"options\\".`;
 
-export async function applyAgents(state: GameState, choice?: string) {
+export interface Logger {
+  info: (obj: any, msg?: string) => void;
+  error: (obj: any, msg?: string) => void;
+}
+
+/**
+ * Advance the game state based on a player's choice and
+ * return the next narration with the available options.
+ *
+ * @param state  Mutable game state shared across requests
+ * @param choice The option chosen by the player
+ * @param logger Optional logger used for debug information
+ */
+export async function applyAgents(
+  state: GameState,
+  choice?: string,
+  logger?: Logger,
+) {
+  logger?.info({ choice, current: state.current }, 'applyAgents called');
   if (choice) {
     const scene = scenes[state.current];
     const next = scene.options[choice];
@@ -62,22 +87,26 @@ export async function applyAgents(state: GameState, choice?: string) {
   }
   const scene = scenes[state.current];
   if (openai) {
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: NARRATOR_PROMPT },
-        {
-          role: 'user',
-          content: `Scene: ${scene.text}\nOptions: ${Object.keys(scene.options).join('; ')}`,
-        },
-      ],
-      response_format: { type: 'json_object' },
-    });
-    const content = completion.choices[0].message.content ?? '{}';
     try {
-      return JSON.parse(content);
-    } catch {
-      return { narration: scene.text, options: Object.keys(scene.options) };
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: NARRATOR_PROMPT },
+          {
+            role: 'user',
+            content: `Scene: ${scene.text}\nOptions: ${Object.keys(scene.options).join('; ')}`,
+          },
+        ],
+        response_format: { type: 'json_object' },
+      });
+      const content = completion.choices[0].message.content ?? '{}';
+      try {
+        return JSON.parse(content);
+      } catch (err) {
+        logger?.error({ err, content }, 'Failed to parse OpenAI response');
+      }
+    } catch (err) {
+      logger?.error({ err }, 'OpenAI request failed');
     }
   }
   return { narration: scene.text, options: Object.keys(scene.options) };
