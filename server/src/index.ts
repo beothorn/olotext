@@ -2,6 +2,18 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import { applyAgents, initialState } from './game/engine.js';
 
+// Log unexpected errors so that issues during startup are visible
+if (process.env.NODE_ENV !== 'test') {
+  process.on('unhandledRejection', (reason) => {
+    // eslint-disable-next-line no-console -- ensure visibility when not using logger
+    console.error('Unhandled Rejection:', reason);
+  });
+  process.on('uncaughtException', (err) => {
+    // eslint-disable-next-line no-console -- ensure visibility when not using logger
+    console.error('Uncaught Exception:', err);
+  });
+}
+
 /**
  * Creates and configures the Fastify server used by the demo.
  */
@@ -30,8 +42,14 @@ export const createServer = () => {
 
 if (process.env.NODE_ENV !== 'test') {
   const fastify = createServer();
-  fastify.listen({ port: 3000 }).then(() => {
-    // eslint-disable-next-line no-console -- provide a visible hint when running manually
-    console.log('🚀 Server ready at http://localhost:3000');
-  });
+  fastify
+    .listen({ port: 3000 })
+    .then(() => {
+      // eslint-disable-next-line no-console -- provide a visible hint when running manually
+      console.log('🚀 Server ready at http://localhost:3000');
+    })
+    .catch((err) => {
+      fastify.log.error({ err }, 'Failed to start server');
+      process.exit(1);
+    });
 }
