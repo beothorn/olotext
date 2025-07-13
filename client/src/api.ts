@@ -1,9 +1,13 @@
-import { createTRPCProxyClient, httpBatchLink } from '@trpc/client';
-import type { AppRouter } from '../server/src/trpc/router';
+export interface PlayResult {
+  narration: string;
+  options: string[];
+}
 
-const client = createTRPCProxyClient<AppRouter>({
-  links: [httpBatchLink({ url: 'http://localhost:3000/trpc' })],
-});
-
-export const fetchNarrative = (choiceId?: string) =>
-  client.narrative.mutate({ choiceId });
+export const fetchNarrative = async (option?: string): Promise<PlayResult> => {
+  const res = await fetch('http://localhost:3000/play', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ option }),
+  });
+  return res.json();
+};

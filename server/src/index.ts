@@ -1,30 +1,25 @@
 import Fastify from 'fastify';
-import { fastifyTRPCPlugin } from '@trpc/server/adapters/fastify';
-import { appRouter } from './trpc/router.ts';
 import cors from '@fastify/cors';
+import { applyAgents, initialState } from './game/engine.js';
 
-const createContext = () => ({});
+export const createServer = () => {
+  const fastify = Fastify({ logger: true });
+  const state = initialState();
 
-const startServer = async () => {
-    const fastify = Fastify({ logger: true });
+  fastify.register(cors, { origin: true });
 
-    await fastify.register(cors, {
-        origin: true,
-    });
+  fastify.post('/play', async (request, reply) => {
+    const body = request.body as { option?: string } | undefined;
+    const result = applyAgents(state, body?.option);
+    reply.send(result);
+  });
 
-    // tRPC endpoint
-    await fastify.register(fastifyTRPCPlugin, {
-        prefix: '/trpc',
-        trpcOptions: { router: appRouter, createContext },
-    });
-
-    try {
-        await fastify.listen({ port: 3000 });
-        console.log('🚀 Server ready at http://localhost:3000');
-    } catch (err) {
-        fastify.log.error(err);
-        process.exit(1);
-    }
+  return fastify;
 };
 
-startServer();
+if (process.env.NODE_ENV !== 'test') {
+  const fastify = createServer();
+  fastify.listen({ port: 3000 }).then(() => {
+    console.log('🚀 Server ready at http://localhost:3000');
+  });
+}
