@@ -10,7 +10,7 @@ export const createServer = () => {
 
   fastify.post('/play', async (request, reply) => {
     const body = request.body as { option?: string } | undefined;
-    const result = applyAgents(state, body?.option);
+    const result = await applyAgents(state, body?.option);
     reply.send(result);
   });
 

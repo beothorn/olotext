@@ -2,17 +2,17 @@ import { describe, it, expect } from 'vitest';
 import { applyAgents, initialState } from './game/engine.js';
 
 describe('engine', () => {
-  it('returns start scene on first call', () => {
+  it('returns start scene on first call', async () => {
     const state = initialState();
-    const res = applyAgents(state);
+    const res = await applyAgents(state);
     expect(res.narration).toContain('221B');
     expect(res.options.length).toBeGreaterThan(0);
   });
 
-  it('advances scene when option chosen', () => {
+  it('advances scene when option chosen', async () => {
     const state = initialState();
-    applyAgents(state, 'Read the letter');
-    const res = applyAgents(state);
+    await applyAgents(state, 'Read the letter');
+    const res = await applyAgents(state);
     expect(res.narration).toContain('stolen jewel');
   });
 });
