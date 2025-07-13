@@ -1,3 +1,5 @@
+import OpenAI from 'openai';
+
 export interface Scene {
   text: string;
   options: Record<string, string>; // option text -> next scene id
@@ -44,7 +46,12 @@ export const scenes: Record<string, Scene> = {
 
 export const initialState = (): GameState => ({ current: 'start', history: [] });
 
-export function applyAgents(state: GameState, choice?: string) {
+const openaiKey = process.env.OPENAI_API_KEY;
+const openai = openaiKey ? new OpenAI({ apiKey: openaiKey }) : null;
+
+const NARRATOR_PROMPT = `You are the Narrator of a text adventure game. Use the provided scene description and options to craft the next narration. Keep the story consistent and concise. Always respond in JSON with keys \\"narration\\" and \\"options\\".`;
+
+export async function applyAgents(state: GameState, choice?: string) {
   if (choice) {
     const scene = scenes[state.current];
     const next = scene.options[choice];
@@ -54,5 +61,24 @@ export function applyAgents(state: GameState, choice?: string) {
     }
   }
   const scene = scenes[state.current];
+  if (openai) {
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: NARRATOR_PROMPT },
+        {
+          role: 'user',
+          content: `Scene: ${scene.text}\nOptions: ${Object.keys(scene.options).join('; ')}`,
+        },
+      ],
+      response_format: { type: 'json_object' },
+    });
+    const content = completion.choices[0].message.content ?? '{}';
+    try {
+      return JSON.parse(content);
+    } catch {
+      return { narration: scene.text, options: Object.keys(scene.options) };
+    }
+  }
   return { narration: scene.text, options: Object.keys(scene.options) };
 }

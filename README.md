@@ -16,6 +16,8 @@ The repository contains a minimal example inspired by Sherlock Holmes. It is spl
    ```bash
    cd server
    npm install
+   # provide your OpenAI key so the narrator can use GPT
+   export OPENAI_API_KEY=sk-your-key
    npm run dev
    ```
 
@@ -96,4 +98,8 @@ Both the server and client have unit tests:
 cd server && npm test
 cd ../client && npm test
 ```
+
+## OpenAI narration
+
+Set the `OPENAI_API_KEY` environment variable before starting the server. When present, the narrator uses the `gpt-4o-mini` model from OpenAI to generate narration and options in JSON format.
 
