@@ -6,9 +6,9 @@ export default function App() {
   const [options, setOptions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const load = async (choiceId?: string) => {
+  const load = async (option?: string) => {
     setLoading(true);
-    const res = await fetchNarrative(choiceId);
+    const res = await fetchNarrative(option);
     setNarration(res.narration);
     setOptions(res.options);
     setLoading(false);

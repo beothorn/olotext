@@ -1,11 +1,35 @@
 # Olotext
 
-Olotext is a text adventure LLM engine.  
+Olotext is a text adventure LLM engine.
 With Olotext, you can play a semi-free, that tries to balance predetermined story telling with free choices.  
 
 This is done by using scenes setups, which are definitions of the outline of a narration, triggers and elements.  
 Behind the scenes, different agents work to keep the story consistent, plan events and react to player choices.  
-Instead of free text, the player chooses between a number of actions, giving the author more control over the narrative.  
+Instead of free text, the player chooses between a number of actions, giving the author more control over the narrative.
+
+## Running the demo game
+
+The repository contains a minimal example inspired by Sherlock Holmes. It is split into a server and a client.
+
+1. **Start the server**
+
+   ```bash
+   cd server
+   npm install
+   npm run dev
+   ```
+
+   The server listens on `http://localhost:3000` and exposes a `/play` endpoint.
+
+2. **Start the client** in another terminal:
+
+   ```bash
+   cd client
+   npm install
+   npm run dev
+   ```
+
+   Open the printed URL in your browser to play the game. Clicking an option sends it to the server and the next piece of narration is displayed.
 
 # Game flow
 
@@ -61,6 +85,15 @@ while not game_over:
     scene_state = SceneStateKeeper(scene_state, player_choice, result_narration)
     abstract_state = AbstractStateKeeper(abstract_state, player_choice, result_narration)
 
-    UpdateStateAndShowNextNarrative()
+   UpdateStateAndShowNextNarrative()
+```
+
+## Running tests
+
+Both the server and client have unit tests:
+
+```bash
+cd server && npm test
+cd ../client && npm test
 ```
 
