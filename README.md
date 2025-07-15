@@ -58,6 +58,10 @@ The game state looks like this:
     ],
     "choiceHistory": [
         {"narrative": "Previous Narrative", "choice": "The choice"}, 
+    ],
+    "narrative": "Current narrative",
+    "options": [
+        {"option": "the option", narrative": "the narrative in case this option is chosen."},
     ]
 }
 ```
