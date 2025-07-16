@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "node --loader ts-node/esm src/index.ts",
+    "dev": "ts-node src/index.ts",
     "build": "tsup",
     "test": "vitest run",
     "start": "node dist/index.js"

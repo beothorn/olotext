@@ -12,11 +12,6 @@ export interface Trigger {
   effect: string; // What happens when condition is met
 }
 
-export interface NarrativeChoice {
-  narrative: string; // Previous Narrative
-  choice: string; // The choice
-}
-
 export interface NarrativeOption {
   option: string; // The option, a full description of an action
   narrative: string; // The next narrative to be used if this option is chosen 
@@ -29,13 +24,14 @@ export interface SceneState {
   sceneState: string; // Description of scene, object, object states (open, closed, broken, wet, dirty, etc)
   sceneSetting: string; // Description of scene mood (scary, eerie, joyfull) , theme to drive the narration
   triggers: Trigger[]; // The scene triggers
-  choiceHistory: NarrativeChoice[];
+  choiceHistory: NarrativeOption[];
   narrative: string; // Current narrative
   options: NarrativeOption[]; // The options from which the player can chose
 }
 
 export const initialState = (): GameState => ({
   "scene": "The Locked Study",
+  "style": "Investigative gothic — a blend of detective fiction and slow-burning gothic suspense. Descriptions are atmospheric, with attention to sensory details, decaying grandeur, and the psychological unease of uncovering secrets.",
   "storyBackgroung": "Professor Elric was murdered by his apprentice, Lysa, who sought to suppress his discovery of a dangerous summoning ritual. The professor had documented his findings in a hidden journal, parts of which were torn and scattered. The key to uncovering the motive lies in retrieving both the journal page from the safe and evidence of forced entry into the study. Without these, the truth remains obscured, and Lysa evades justice. The player must uncover the safe, retrieve the journal page, and access the study to continue unraveling the mystery.",
   "summary": "Detective Mira arrived at the Elric Manor following the professor’s death. After speaking with the butler and noticing strange behavior, she proceeded alone to the locked study, the last place the professor was seen alive.",
   "sceneState": "The study door is locked. A faint trail of ash leads from under the door into the hallway. A small brass key rests on a nearby side table. An old portrait hangs on the wall, covered in a thick cloth. A grandfather clock ticks steadily in the corner. There is no sign of forced entry on the study door. The room smells faintly of burnt paper.",
@@ -60,19 +56,19 @@ export const initialState = (): GameState => ({
       "choice": "Ask the butler about Elric’s final days."
     }
   ],
-  "narrative": "You stand before the locked door of the professor’s study. The air is thick with dust and tension. Something about this place doesn’t feel right.",
+  "narrative": "The carriage ride through the northern hills had been quiet, save for the wind clawing at the windows. Now, as you step out beneath the looming gables of Elric Manor, the air changes. It tastes of old stone and withered ivy. The estate squats against the landscape like a forgotten cathedral — too old, too silent.\n\nYou are Detective Mira Voss, summoned here after the sudden death of Professor Aldus Elric — linguist, historian, and eccentric recluse. The official reports spoke of heart failure. But someone whispered your name in the right ear — someone who believed there was more to the story. You’ve been called not just to examine a corpse, but to interpret the silence that followed it.\n\nInside, the butler offered no more than practiced politeness. No mourning, no details. Just a gesture toward the west wing — the professor’s study. Now you stand before its locked door. The hallway is long, its walls hung with faded tapestries and ancestors who glare from gilt frames. The scent of scorched parchment clings to the air. Behind you, the manor sighs with age.\n\nYou take in your surroundings: the old grandfather clock ticking a tempo no longer matched to time, a covered portrait draped in heavy cloth, and on a nearby table — a brass key, left as if for you. The manor offers no welcome. Only a riddle.\n\nSomething happened in that study. And someone went to great effort to make sure you’d find it sealed.",
   "options": [
     {
       "option": "Examine the brass key on the side table.",
-      "narrative": "You approach the side table, noting how out of place it seems — too clean, too deliberate. The brass key lies atop it, glinting faintly. When you pick it up, it’s warm, and smudges suggest it was used recently. This key could be your entry point — or someone else's exit."
+      "narrative": "You cross the wooden floor, careful to avoid the faded rug whose patterns seem to shift in the dim light. The brass key sits atop a dusty lace doily, too clean for the rest of the scene — untouched by time, or perhaps cleaned in haste. When you lift it, it's warm. Recently held. Not by the butler, you're sure — his hands were empty. There’s a small, engraved symbol on the bow of the key: an eye, half-shut. This was meant for someone to find. Possibly you."
     },
     {
       "option": "Pull down the cloth covering the portrait.",
-      "narrative": "You lift the heavy cloth in one swift motion, sending a puff of dust into the stale air. Beneath is a portrait of Professor Elric, painted with austere precision. But behind it, a subtle groove in the wall draws your eye — a square outline barely visible. You press against it, and with a faint click, a small wall safe is revealed, its dial untouched for years — until now."
+      "narrative": "You reach for the cloth with a hesitant hand. It's heavy, velvet, and old — the type that remembers fire and ceremony. As you drag it down, it collapses in a heap, revealing a severe portrait of Elric, painted not with affection but obsession. But the frame is set oddly into the wall, the plaster surrounding it cracked in a neat square. You press the frame’s edge — a subtle click answers. There’s something behind it. A compartment, perhaps. Locked, hidden. Expected."
     },
     {
       "option": "Knock on the study door and listen.",
-      "narrative": "You knock softly, the sound dull against the thick oak. You wait. Nothing. Just the groaning timbers of the manor settling. Then, a whisper of movement — so faint you question if it was real — and the unmistakable scent of scorched parchment grows stronger. Someone has been here. Maybe they still are."
+      "narrative": "You knock. Once, twice. The sound dulls quickly in the thick wood, swallowed by the hush of the manor. You lean in, breath held. Behind the door, a silence too complete — as though something inside were holding its breath, too. Then, so faint you nearly miss it: the rustle of paper, the scrape of something dragging. Your heart stutters. The scent of burnt parchment intensifies. Someone — or something — was here not long ago."
     }
   ]
 });
@@ -88,11 +84,6 @@ export interface Trigger {
   effect: string; // What happens when condition is met
 }
 
-export interface NarrativeChoice {
-  narrative: string; // Previous Narrative
-  choice: string; // The choice
-}
-
 export interface NarrativeOption {
   option: string; // The option, a full description of an action
   narrative: string; // The next narrative to be used if this option is chosen 
@@ -100,16 +91,22 @@ export interface NarrativeOption {
 
 export interface SceneState {
   scene: string; // The scene name
+  style: string; // The narrative style, serve as a guide to the next narratives
   storyBackgroung: string; // Story unchangeable background, secrets, important facts and elements important for the ending to work.
   summary: string; // Summary from previous scene
   sceneState: string; // Description of scene, object, object states (open, closed, broken, wet, dirty, etc)
   sceneSetting: string; // Description of scene mood (scary, eerie, joyfull) , theme to drive the narration
   triggers: Trigger[]; // The scene triggers
-  choiceHistory: NarrativeChoice[];
+  choiceHistory: NarrativeOption[];
   narrative: string; // Current narrative
   options: NarrativeOption[]; // The options from which the player can chose
 }
-`;
+Given the previous scene state and the choice generate the new scene state by:
+- updating the summary
+- updating the scene state
+- update the choice history
+- replace the narrative with the choice
+- create new options with new narratives`;
 
 export interface Logger {
   info: (obj: any, msg?: string) => void;
@@ -128,37 +125,27 @@ export async function applyAgents(
   state: SceneState,
   choice?: string,
   logger?: Logger,
-) {
-  logger?.info({ choice, current: state.narrative }, 'applyAgents called');
-  if (choice) {
-    const next = scene.options[choice];
-    if (next) {
-      // TODO: Update narrative, options, choiceHistory
-    }
-  }
-  const scene = scenes[state.current];
-  if (openai) {
+): SceneState {
+  if(!choice) return initialState();
+  try {
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: NARRATOR_PROMPT },
+        {
+          role: 'user',
+          content: choice,
+        },
+      ],
+      response_format: { type: 'json_object' },
+    });
+    const content = completion.choices[0].message.content ?? '{}';
     try {
-      const completion = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: NARRATOR_PROMPT },
-          {
-            role: 'user',
-            content: `Scene: ${scene.text}\nOptions: ${Object.keys(scene.options).join('; ')}`,
-          },
-        ],
-        response_format: { type: 'json_object' },
-      });
-      const content = completion.choices[0].message.content ?? '{}';
-      try {
-        return JSON.parse(content);
-      } catch (err) {
-        logger?.error({ err, content }, 'Failed to parse OpenAI response');
-      }
+      return JSON.parse(content);
     } catch (err) {
-      logger?.error({ err }, 'OpenAI request failed');
+      logger?.error({ err, content }, 'Failed to parse OpenAI response');
     }
+  } catch (err) {
+    logger?.error({ err }, 'OpenAI request failed');
   }
-  return { narration: scene.text, options: Object.keys(scene.options) };
 }
