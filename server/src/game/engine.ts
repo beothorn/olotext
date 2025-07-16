@@ -29,7 +29,7 @@ export interface SceneState {
   options: NarrativeOption[]; // The options from which the player can chose
 }
 
-export const initialState = (): GameState => ({
+export const initialState = (): SceneState => ({
   "scene": "The Locked Study",
   "style": "Investigative gothic — a blend of detective fiction and slow-burning gothic suspense. Descriptions are atmospheric, with attention to sensory details, decaying grandeur, and the psychological unease of uncovering secrets.",
   "storyBackgroung": "Professor Elric was murdered by his apprentice, Lysa, who sought to suppress his discovery of a dangerous summoning ritual. The professor had documented his findings in a hidden journal, parts of which were torn and scattered. The key to uncovering the motive lies in retrieving both the journal page from the safe and evidence of forced entry into the study. Without these, the truth remains obscured, and Lysa evades justice. The player must uncover the safe, retrieve the journal page, and access the study to continue unraveling the mystery.",

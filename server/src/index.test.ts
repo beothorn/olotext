@@ -10,7 +10,7 @@ describe('server', () => {
       payload: {},
     });
     const body = res.json();
-    expect(body.narration).toContain('221B');
+    expect(body.narrative).toContain('Elric Manor');
     expect(body.options.length).toBeGreaterThan(0);
   });
 });
