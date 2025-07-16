@@ -1,5 +1,5 @@
 export interface PlayResult {
-  narration: string;
+  narrative: string;
   options: string[];
 }
 

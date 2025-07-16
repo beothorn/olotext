@@ -6,7 +6,7 @@ import App from './App';
 vi.mock('./api');
 
 (api.fetchNarrative as vi.Mock).mockResolvedValue({
-  narration: 'Hello world',
+  narrative: 'Hello world',
   options: ['opt1', 'opt2'],
 });
 
