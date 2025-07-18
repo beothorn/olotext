@@ -104,9 +104,24 @@ export interface SceneState {
 Given the previous scene state and the choice generate the new scene state by:
 - updating the summary
 - updating the scene state
-- update the choice history
-- replace the narrative with the choice
-- create new options with new narratives`;
+- create 4 new options with new narratives
+
+Example options:
+
+"options": [
+  {
+    "option": "Examine the brass key on the side table.",
+    "narrative": "You cross the wooden floor, careful to avoid the faded rug whose patterns seem to shift in the dim light. The brass key sits atop a dusty lace doily, too clean for the rest of the scene — untouched by time, or perhaps cleaned in haste. When you lift it, it's warm. Recently held. Not by the butler, you're sure — his hands were empty. There’s a small, engraved symbol on the bow of the key: an eye, half-shut. This was meant for someone to find. Possibly you."
+  },
+  ...
+]
+
+And in this case update scene state with player has the key on their hands.
+
+Pay attention to not get lost about where the player is, what it is doing.
+If a line of dialog seems to be going for to long, try to bring the player back to the story.
+Make each narrative at least one paragraph or more.
+`;
 
 export interface Logger {
   info: (obj: any, msg?: string) => void;
@@ -127,6 +142,16 @@ export async function applyAgents(
   logger?: Logger,
 ): SceneState {
   if(!choice) return initialState();
+
+  // TODO: select the option where option == choice
+  const chosenNarrativeOption: NarrativeOption = state.options
+
+  // TODO: update the
+
+  state.options = [];
+  state.narrative = chosenNarrativeOption.narrative;
+  state.choiceHistory.push(chosenNarrativeOption);
+
   try {
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
@@ -141,7 +166,10 @@ export async function applyAgents(
     });
     const content = completion.choices[0].message.content ?? '{}';
     try {
-      return JSON.parse(content);
+      const result = JSON.parse(content);
+      logger?.info(result); 
+      result.choiceHistory.push();
+      return result;
     } catch (err) {
       logger?.error({ err, content }, 'Failed to parse OpenAI response');
     }
