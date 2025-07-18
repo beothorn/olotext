@@ -1,6 +1,6 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
-import { applyAgents, initialState, SceneState } from './game/engine.js';
+import { applyAgents, initialState } from './game/engine.js';
 
 // Log unexpected errors so that issues during startup are visible
 if (process.env.NODE_ENV !== 'test') {
@@ -33,7 +33,7 @@ export const createServer = () => {
   fastify.post('/play', async (request, reply) => {
     const body = request.body as { option?: string } | undefined;
     fastify.log.info({ option: body?.option }, 'processing /play');
-    const result: SceneState = await applyAgents(state, body?.option, fastify.log);
+    const result = await applyAgents(state, body?.option, fastify.log);
     reply.send({
       narrative: result.narrative,
       options: result.options.map((o) => o.option),
