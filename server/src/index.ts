@@ -37,7 +37,11 @@ export const createServer = () => {
     state = result;
     const answer = {
       narrative: result.narrative,
-      options: result.options.map((o) => ({ optionKey: o.optionKey, content: o.option })),
+      options: result.options.map((o) => ({
+        optionKey: o.optionKey,
+        content: o.option,
+        narrative: o.narrative,
+      })),
     };
     reply.send(answer);
   });

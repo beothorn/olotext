@@ -1,17 +1,23 @@
 import { useState, useEffect } from 'react';
-import { fetchNarrative } from './api';
+import { fetchNarrative, NarrativeOption } from './api';
 
 export default function App() {
   const [narrative, setNarrative] = useState('');
-  const [options, setOptions] = useState<any[]>([]);
+  const [options, setOptions] = useState<NarrativeOption[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const load = async (option?: any) => {
+  const load = async (optionKey?: string) => {
     setLoading(true);
-    const res = await fetchNarrative(option?.optionKey);
+    const res = await fetchNarrative(optionKey);
     setNarrative(res.narrative);
     setOptions(res.options);
     setLoading(false);
+  };
+
+  const handleOption = (o: NarrativeOption) => {
+    setNarrative(o.narrative);
+    setOptions([]);
+    load(o.optionKey);
   };
 
   useEffect(() => {
@@ -26,7 +32,7 @@ export default function App() {
       <ul>
         {options.map((o, i) => (
           <li key={i}>
-            <button onClick={() => load(o)}>{o.content}</button>
+            <button onClick={() => handleOption(o)}>{o.content}</button>
           </li>
         ))} 
       </ul>

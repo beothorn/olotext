@@ -7,7 +7,10 @@ vi.mock('./api');
 
 (api.fetchNarrative as vi.Mock).mockResolvedValue({
   narrative: 'Hello world',
-  options: ['opt1', 'opt2'],
+  options: [
+    { optionKey: '1', content: 'opt1', narrative: 'n1' },
+    { optionKey: '2', content: 'opt2', narrative: 'n2' },
+  ],
 });
 
 describe('App', () => {

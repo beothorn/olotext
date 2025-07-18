@@ -11,7 +11,7 @@ describe('engine', () => {
 
   it('advances scene when option chosen', async () => {
     const state = initialState();
-    await applyAgents(state, 'Examine the brass key on the side table.');
+    await applyAgents(state, 'examine_brass_key');
     const res = await applyAgents(state);
     expect(res.narrative).not.toEqual('');
   });
