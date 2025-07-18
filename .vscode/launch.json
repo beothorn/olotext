@@ -1,0 +1,24 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        // ...existing configs...
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug ts-node server",
+            "runtimeArgs": [
+                "--loader",
+                "ts-node/esm"
+            ],
+            "program": "${workspaceFolder}/server/src/index.ts",
+            "cwd": "${workspaceFolder}/server",
+            "env": {
+                "NODE_ENV": "development"
+            },
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "preLaunchTask": "build"
+        }
+    ]
+}

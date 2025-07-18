@@ -13,6 +13,7 @@ export interface Trigger {
 }
 
 export interface NarrativeOption {
+  optionKey: string; // A unique key for the option, used to identify it
   option: string; // The option, a full description of an action
   narrative: string; // The next narrative to be used if this option is chosen 
 }
@@ -59,14 +60,17 @@ export const initialState = (): SceneState => ({
   "narrative": "The carriage ride through the northern hills had been quiet, save for the wind clawing at the windows. Now, as you step out beneath the looming gables of Elric Manor, the air changes. It tastes of old stone and withered ivy. The estate squats against the landscape like a forgotten cathedral — too old, too silent.\n\nYou are Detective Mira Voss, summoned here after the sudden death of Professor Aldus Elric — linguist, historian, and eccentric recluse. The official reports spoke of heart failure. But someone whispered your name in the right ear — someone who believed there was more to the story. You’ve been called not just to examine a corpse, but to interpret the silence that followed it.\n\nInside, the butler offered no more than practiced politeness. No mourning, no details. Just a gesture toward the west wing — the professor’s study. Now you stand before its locked door. The hallway is long, its walls hung with faded tapestries and ancestors who glare from gilt frames. The scent of scorched parchment clings to the air. Behind you, the manor sighs with age.\n\nYou take in your surroundings: the old grandfather clock ticking a tempo no longer matched to time, a covered portrait draped in heavy cloth, and on a nearby table — a brass key, left as if for you. The manor offers no welcome. Only a riddle.\n\nSomething happened in that study. And someone went to great effort to make sure you’d find it sealed.",
   "options": [
     {
+      "optionKey": "examine_brass_key",
       "option": "Examine the brass key on the side table.",
       "narrative": "You cross the wooden floor, careful to avoid the faded rug whose patterns seem to shift in the dim light. The brass key sits atop a dusty lace doily, too clean for the rest of the scene — untouched by time, or perhaps cleaned in haste. When you lift it, it's warm. Recently held. Not by the butler, you're sure — his hands were empty. There’s a small, engraved symbol on the bow of the key: an eye, half-shut. This was meant for someone to find. Possibly you."
     },
     {
+      "optionKey": "pull_down_portrait_cloth",  
       "option": "Pull down the cloth covering the portrait.",
       "narrative": "You reach for the cloth with a hesitant hand. It's heavy, velvet, and old — the type that remembers fire and ceremony. As you drag it down, it collapses in a heap, revealing a severe portrait of Elric, painted not with affection but obsession. But the frame is set oddly into the wall, the plaster surrounding it cracked in a neat square. You press the frame’s edge — a subtle click answers. There’s something behind it. A compartment, perhaps. Locked, hidden. Expected."
     },
     {
+      "optionKey": "knock_on_study_door",
       "option": "Knock on the study door and listen.",
       "narrative": "You knock. Once, twice. The sound dulls quickly in the thick wood, swallowed by the hush of the manor. You lean in, breath held. Behind the door, a silence too complete — as though something inside were holding its breath, too. Then, so faint you nearly miss it: the rustle of paper, the scrape of something dragging. Your heart stutters. The scent of burnt parchment intensifies. Someone — or something — was here not long ago."
     }
@@ -77,7 +81,7 @@ const openaiKey = process.env.OPENAI_API_KEY;
 const openai = openaiKey ? new OpenAI({ apiKey: openaiKey }) : null;
 
 const NARRATOR_PROMPT = `You are the Narrator of a text adventure game. 
-Use the provided scene description and options to craft the next narration. 
+Use the provided scene to craft the next narration options. 
 Keep the story consistent and concise. Always respond in JSON, here described using typescript:
 export interface Trigger {
   condition: string; // Condition to trigger, for example, detective asks about some clue to Preson X
@@ -85,6 +89,7 @@ export interface Trigger {
 }
 
 export interface NarrativeOption {
+  optionKey: string; // A unique key for the option, used to identify it
   option: string; // The option, a full description of an action
   narrative: string; // The next narrative to be used if this option is chosen 
 }
@@ -110,6 +115,7 @@ Example options:
 
 "options": [
   {
+    "optionKey": "examine_brass_key",
     "option": "Examine the brass key on the side table.",
     "narrative": "You cross the wooden floor, careful to avoid the faded rug whose patterns seem to shift in the dim light. The brass key sits atop a dusty lace doily, too clean for the rest of the scene — untouched by time, or perhaps cleaned in haste. When you lift it, it's warm. Recently held. Not by the butler, you're sure — his hands were empty. There’s a small, engraved symbol on the bow of the key: an eye, half-shut. This was meant for someone to find. Possibly you."
   },
@@ -120,7 +126,8 @@ And in this case update scene state with player has the key on their hands.
 
 Pay attention to not get lost about where the player is, what it is doing.
 If a line of dialog seems to be going for to long, try to bring the player back to the story.
-Make each narrative at least one paragraph or more.
+Make each narrative option at least one paragraph or more.
+OPTIONS MUST NOT BE EMPTY, always provide at least 4 options.
 `;
 
 export interface Logger {
@@ -138,15 +145,19 @@ export interface Logger {
  */
 export async function applyAgents(
   state: SceneState,
-  choice?: string,
+  choiceKey?: string,
   logger?: Logger,
 ): SceneState {
-  if(!choice) return initialState();
+  if(!choiceKey) return initialState();
 
   // TODO: select the option where option == choice
-  const chosenNarrativeOption: NarrativeOption = state.options
-
-  // TODO: update the
+  const chosenNarrativeOption: NarrativeOption | undefined = state.options.find(
+    (opt) => opt.optionKey === choiceKey
+  );
+  if (!chosenNarrativeOption) {
+    const availableChoices = state.options.map(opt => opt.optionKey);
+    throw new Error(`Option not found for choice: ${choiceKey}. Available choices: ${availableChoices.join(' | ')}`);
+  }
 
   state.options = [];
   state.narrative = chosenNarrativeOption.narrative;
@@ -156,10 +167,10 @@ export async function applyAgents(
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
-        { role: 'system', content: NARRATOR_PROMPT },
+        { role: 'system', content: `${NARRATOR_PROMPT} Current scene state: ${JSON.stringify(state)}` },
         {
           role: 'user',
-          content: choice,
+          content: choiceKey,
         },
       ],
       response_format: { type: 'json_object' },
@@ -168,7 +179,6 @@ export async function applyAgents(
     try {
       const result = JSON.parse(content);
       logger?.info(result); 
-      result.choiceHistory.push();
       return result;
     } catch (err) {
       logger?.error({ err, content }, 'Failed to parse OpenAI response');

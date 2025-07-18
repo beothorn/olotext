@@ -20,7 +20,7 @@ if (process.env.NODE_ENV !== 'test') {
 
 export const createServer = () => {
   const fastify = Fastify({ logger: true });
-  const state = initialState();
+  let state = initialState();
 
   fastify.register(cors, { origin: true });
 
@@ -34,10 +34,12 @@ export const createServer = () => {
     const body = request.body as { option?: string } | undefined;
     fastify.log.info({ option: body?.option }, 'processing /play');
     const result = await applyAgents(state, body?.option, fastify.log);
-    reply.send({
+    state = result;
+    const answer = {
       narrative: result.narrative,
-      options: result.options.map((o) => o.option),
-    });
+      options: result.options.map((o) => ({ optionKey: o.optionKey, content: o.option })),
+    };
+    reply.send(answer);
   });
 
   return fastify;

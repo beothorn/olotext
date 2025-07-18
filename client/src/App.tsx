@@ -3,12 +3,12 @@ import { fetchNarrative } from './api';
 
 export default function App() {
   const [narrative, setNarrative] = useState('');
-  const [options, setOptions] = useState<string[]>([]);
+  const [options, setOptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const load = async (option?: string) => {
+  const load = async (option?: any) => {
     setLoading(true);
-    const res = await fetchNarrative(option);
+    const res = await fetchNarrative(option?.optionKey);
     setNarrative(res.narrative);
     setOptions(res.options);
     setLoading(false);
@@ -26,9 +26,9 @@ export default function App() {
       <ul>
         {options.map((o, i) => (
           <li key={i}>
-            <button onClick={() => load(o)}>{o}</button>
+            <button onClick={() => load(o)}>{o.content}</button>
           </li>
-        ))}
+        ))} 
       </ul>
     </div>
   );
