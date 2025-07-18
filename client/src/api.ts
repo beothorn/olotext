@@ -1,6 +1,12 @@
+export interface NarrativeOption {
+  optionKey: string;
+  content: string;
+  narrative: string;
+}
+
 export interface PlayResult {
   narrative: string;
-  options: string[];
+  options: NarrativeOption[];
 }
 
 export const fetchNarrative = async (option?: string): Promise<PlayResult> => {
